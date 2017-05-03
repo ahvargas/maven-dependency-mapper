@@ -27,6 +27,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.rest.graphdb.RestAPI;
@@ -47,6 +48,8 @@ public class StoreGraphDependencyMojo
 
     private static final String GROUP_ID_AND_ARTIFACT_ID = "groupIdAndArtifactId";
     private static final String COMPLETE_ID = "completeId";
+    public static final String MAVEN_DEPENDENCY = "MAVEN_DEPENDENCY";
+    public static final String MAVEN_PROJECT = "MAVEN_PROJECT";
     private static RestIndex<Node> index;
     private static final String ARTIFACT = "artifact";
 
@@ -103,6 +106,12 @@ public class StoreGraphDependencyMojo
     @SuppressWarnings("unchecked")
     private void getDependencies() {
         Node projectNode = makeNode(project.getArtifact());
+        projectNode.addLabel(new Label() {
+            @Override
+            public String name() {
+                return MAVEN_PROJECT;
+            }
+        });
         for(Relationship r:projectNode.getRelationships(Direction.OUTGOING)){
             r.delete();
         }
@@ -145,6 +154,12 @@ public class StoreGraphDependencyMojo
         }
         try {
             artifactNode = makeNode(dependency);
+            artifactNode.addLabel(new Label() {
+                @Override
+                public String name() {
+                    return MAVEN_DEPENDENCY;
+                }
+            });
             projectNode.createRelationshipTo(artifactNode, MavenRelationships.getByName(scope));
             getLog().info("Registered dependency to " + ArtifactHelper.getId(dependency) + ", scope: " + scope);
         } catch (Throwable e) {
