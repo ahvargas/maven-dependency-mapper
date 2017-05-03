@@ -167,4 +167,16 @@
 
     </repositories>
 
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>${url.releases.repos}</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>${url.snapshots.repos}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
 </project>
